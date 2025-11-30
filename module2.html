@@ -8,21 +8,23 @@
 </head>
 <body>
     <main>
-        <section class="correctConteiner" id="correctConteiner">
-            <textarea  id="textCorrect"></textarea>
-            <nav>
-                <button id="Save"></button>
-                <button id="close"></button>
-            </nav>
         </section>
         <section class="widget" id="widget">
 
             <img class="Logo_widget" id="Logo_widget" src="https://images.icon-icons.com/1149/PNG/512/1486504338-check-check-marks-list-checklist-documents-todo-list_81298.png" alt="">
             <article class="insideContent" id="insideContent">
+
                 <section class="Setting" id="Setting">
-                    <section class="Conteiner1">
                     <div class="ProgressBar"></div>
+                    <section class="Conteiner1">
                     <article class="Events" id="Events"></article>
+                    <article class="Block_ADD_Btn">
+                        <button id="AddEvent">+</button>
+                    </article>
+                    </section>
+                </section>
+
+                <section class="SetWin">
                     <section class="SettingWindows" id="SettingWindows">
                         <button class="btn_option" id="correct">correct</button>
                         <button class="btn_option" id="status">status</button>
@@ -41,22 +43,33 @@
                             <p class="Status_text" id="pending_desc">pending</p>
                         </article>
                     </section>
+                    
+                    <section class="correctConteiner" id="correctConteiner">
+                        <textarea  id="textCorrect"></textarea>
+                        <nav>
+                            <button id="Save">save</button>
+                            <button id="close">close</button>
+                        </nav>
                     </section>
                 </section>
-                <button id="AddEvent">+</button>
+
             </article>
         </section>
     </main>
 <script>
 document.getElementById("Logo_widget").addEventListener("click", function() {
    if(document.getElementById("widget").style.width === "50px") {
-       document.getElementById("widget").style.width = "1000px";
+        document.getElementById("Logo_widget").style.width = "30px";
+        document.getElementById("Logo_widget").style.height = "30px";
+       document.getElementById("widget").style.width = "800px";
        document.getElementById("widget").style.height = "500px";
        document.getElementById("widget").style.padding = "10px";
        //document.getElementById("Logo_widget").style.display = "none";
        document.getElementById("widget").style.borderRadius = "5px";
-       document.getElementById("insideContent").style.display = "grid";
+       document.getElementById("insideContent").style.display = "flex";
    } else {
+        document.getElementById("Logo_widget").style.width = "50px";
+        document.getElementById("Logo_widget").style.height = "50px";
         document.getElementById("widget").style.width = "50px";
         document.getElementById("widget").style.height = "50px";
         document.getElementById("widget").style.padding = "0px";
@@ -67,16 +80,16 @@ document.getElementById("Logo_widget").addEventListener("click", function() {
         closeSettingWin();
    }
 });
-
+//////////////////////////////////////////////
 function closeSettingWin(){
     setTimeout(function(){
     if(document.getElementById("SettingWindows").style.display = "grid"){
         document.getElementById("SettingWindows").style.display = "none";
         document.querySelectorAll(".Event_P").forEach(function(eventElement) {
-        eventElement.style.border = "none";
+        eventElement.style.border = "1px solid #303030";
     });
     }
-    },100);
+    },500);
 };
 
 document.getElementById("AddEvent").addEventListener("click", function() {
@@ -88,18 +101,49 @@ document.getElementById("AddEvent").addEventListener("click", function() {
 });
 
 
+
+document.addEventListener("keydown", function(event) {
+    if(event.shiftKey  &&  event.key === "A" || event.shiftKey  &&  event.key === "Ф" || event.shiftKey  &&  event.keyCode === 32) {
+        if(document.querySelector(".EventInput") === null && document.querySelector(".EventInput") !== document.activeElement){
+            closeSettingWin(); 
+            let Inp = document.createElement("input");
+            Inp.className = "EventInput";
+            Inp.value = "";
+            document.getElementById("Events").appendChild(Inp);
+            setTimeout(function(){
+                Inp.focus();
+            },100);  
+        }
+    }
+});
+ 
+function removeEmptyInputs() {
+    let activeInput = document.querySelector('.EventInput');
+    return activeInput;
+}
+
+
+function removeEmptyInputs() {
+    let activeInput = document.querySelector('.EventInput');
+    return activeInput;
+}
+
+let isEnterProcessing = false;
 document.addEventListener("blur", function(event) {
+    if (isEnterProcessing) return;
+    
     if (event.target.classList.contains("EventInput") && event.target.value.trim() === "") {
         event.target.remove();
     }
     else if(event.target.classList.contains("EventInput") && event.target.value.trim() !== ""){
-        let activeInput = document.querySelector('.EventInput');
-        if (activeInput) {
+        let Remove_Res = removeEmptyInputs();
+        if (Remove_Res && Remove_Res.isConnected) { 
             let Event_P = document.createElement("div");
             Event_P.className = "Event_P";
-            Event_P.innerHTML = activeInput.value;
-            activeInput.value = "";
-            activeInput.remove();
+            Event_P.style.border = "1px solid #303030";
+            Event_P.innerHTML = Remove_Res.value;
+            Remove_Res.value = "";
+            Remove_Res.remove();
             
             setTimeout(function() {
                 document.getElementById("Events").appendChild(Event_P);
@@ -108,6 +152,29 @@ document.addEventListener("blur", function(event) {
     }
 }, true); 
 
+document.addEventListener("keydown", function(event) {
+    let Remove_Res1 = removeEmptyInputs();
+    
+    if(event.key === "Enter" && Remove_Res1) {
+        if (Remove_Res1.value.trim() !== "") {
+            isEnterProcessing = true; 
+            
+            let Event_P = document.createElement("div");
+            Event_P.className = "Event_P";
+            Event_P.innerHTML = Remove_Res1.value;
+            Remove_Res1.value = "";
+            
+            setTimeout(function() {
+                if (Remove_Res1.isConnected) { 
+                    Remove_Res1.remove();
+                }
+                document.getElementById("Events").appendChild(Event_P);
+                    setTimeout(() => isEnterProcessing = false, 10);
+            }, 50);
+        }
+    }
+});
+
 /////
  document.addEventListener("contextmenu", function(event) {
     event.preventDefault();
@@ -115,16 +182,16 @@ document.addEventListener("blur", function(event) {
         if (event.target === eventElement) {
             document.getElementById("SettingWindows").style.display = "grid";
             document.querySelectorAll(".Event_P").forEach(function(eventElement) {
-            eventElement.style.border = "none";
+            eventElement.style.border = "1px solid #303030";
             if (event.target === eventElement) {
-                eventElement.style.border = "1px solid gray";
+                eventElement.style.border = "2px solid rgb(67, 111, 255)";
                 closeCorrect();
             }
         });
         }
         else{
-            if(eventElement.style.border === "1px solid gray"){
-                eventElement.style.border = "none";
+            if(eventElement.style.border === "2px solid rgb(67, 111, 255)"){
+                eventElement.style.border = "1px solid #303030";
                 document.getElementById("SettingWindows").style.display = "none";
                 closeCorrect();
             }
@@ -182,7 +249,7 @@ document.getElementById("exit").addEventListener("click", function(event) {
 
 document.getElementById("delete").addEventListener("click", function(event) {
     document.querySelectorAll(".Event_P").forEach(function(eventElement) {
-        if (eventElement.style.border === "1px solid gray") {
+        if (eventElement.style.border === "2px solid rgb(67, 111, 255)") {
             eventElement.remove();
             closeSettingWin(); 
         }
@@ -192,15 +259,43 @@ document.getElementById("delete").addEventListener("click", function(event) {
 function serch(){
     let search = null;
     document.querySelectorAll(".Event_P").forEach(function(eventElement) {
-        if (eventElement.style.border === "1px solid gray") {
+        if (eventElement.style.border === "2px solid rgb(67, 111, 255)") {
             search = eventElement;
         }
     });
     return search;
 }
 
+function Close_Satting_Win(){
+    document.querySelectorAll(".btn_option").forEach(function(eventElement) {
+        eventElement.style.display = "none";
+        document.getElementById("SettingWindows").style.height = "15px";
+        document.getElementById("SettingWindows").style.alignContent = "start";
+        document.getElementById("widget").style.width = "800px";
+    });
+};
+
+function Open_Satting_Win(){
+    document.querySelectorAll(".btn_option").forEach(function(eventElement) {
+        setTimeout(function(){
+            eventElement.style.display = "block";
+            document.getElementById("SettingWindows").style.height = "90px";
+            document.getElementById("SettingWindows").style.alignContent = "center";
+            document.getElementById("widget").style.width = "800px";
+        }, 500);
+    });
+}
+
 document.getElementById("correct").addEventListener("click", function(event) {
-   document.getElementById("correctConteiner").style.display = "flex";
+    ////////////////////////////////////////////////////////////////////////////////
+    Close_Satting_Win();
+    document.getElementById("correct").style.display = "block";
+    document.getElementById("widget").style.width = "1100px";
+    setTimeout(function(){
+        document.getElementById("correctConteiner").style.height = "220px";
+        document.getElementById("correctConteiner").style.padding = "10px";
+        document.getElementById("textCorrect").focus();
+    },500);
    serch();    
    if(serch != null){
        const serch_res = serch();  
@@ -212,21 +307,25 @@ document.getElementById("correct").addEventListener("click", function(event) {
 function closeCorrect(){
     document.getElementById("correct").classList.remove("Correct-Active"); 
     document.getElementById("textCorrect").value = "";
-    document.getElementById("correctConteiner").style.display = "none";
+    document.getElementById("correctConteiner").style.height = "0px";
+    document.getElementById("correctConteiner").style.padding = "0px";
 };
 
 document.getElementById("Save").addEventListener("click", function(event) {
-    document.getElementById("correctConteiner").style.display = "flex";
+    document.getElementById("correctConteiner").style.height= "0px";
+    document.getElementById("correctConteiner").style.padding = "0px";
        document.querySelectorAll(".Event_P").forEach(function(eventElement) {
-        if (eventElement.style.border === "1px solid gray") {
+        if (eventElement.style.border === "2px solid rgb(67, 111, 255)") {
             eventElement.innerHTML = document.getElementById("textCorrect").value;
-            closeCorrect();
-            closeSettingWin();
+            Open_Satting_Win()
+            closeCorrect()
+            closeSettingWin()
         }
     });
 });
 
 document.getElementById("close").addEventListener("click", function(event) {
+    Open_Satting_Win()
     closeCorrect();
     closeSettingWin();
 });
@@ -306,7 +405,7 @@ document.addEventListener("dblclick", function(event) {
         if(eventElement.style.height !== "fit-content")
         eventElement.style.height = "fit-content";
         else{
-            eventElement.style.height = "30px";
+            eventElement.style.height = "40px";
         }
     }
     });
